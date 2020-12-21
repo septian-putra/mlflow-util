@@ -1,22 +1,24 @@
-# dsci-mlflow-log
+# mlflow-util
 ## Introduction
-The project is about data science experiment logs using MLFlow. The code contains wrapper function to use [**mlflow.tracking.MlflowClient**](https://mlflow.org/docs/latest/python_api/mlflow.tracking.html) object. Using this library, a user can log all of their experiment information to a centralized tracking server. The tracking server public access is http://34.243.161.35:5000 and can only be accesed from Exact IP address.
+The project is about machine learning experiment logs using MLFlow.
+The repository contains wrapper function to use [**mlflow.tracking.MlflowClient**](https://mlflow.org/docs/latest/python_api/mlflow.tracking.html) object. Using this library, a user can log all of their experiment information to a centralized tracking server. The tracking server public access is http://34.243.161.35:5000 and can only be accesed from Exact IP address.
 
 ## Server Setup
-* Configure your EC2 to use security group **mlflow-server** (sg-0df1ca84e624a2984).
-* Install mlflow==0.9.1 and gitpython package on your python environment.
+* Choose the instance type based on the amount of expected requests. I use an `t2.micro` as our team is small. 
+* Place the EC2 in public Subnet and create a security group to allow the access to port 5000.
+* Assign an EC2 role that allow full S3 Access from EC2 instance for artifacts storage.
+* Install mlflow and gitpython package on your python environment.
 * Start the MLFLow server by executing the following command:
->```nohup mlflow server --default-artifact-root s3:///cig-ds-dev/mlflow/ --host 0.0.0.0 &``` 
+>```nohup mlflow server --default-artifact-root s3://<artifacts-store-bucket>/mlflow/ --host 0.0.0.0 &``` 
 
 ## Client Setup
-* This library works for both Linux and Windows machines.
-* Install mlflow==0.9.1 and gitpython package on your python environment.
-* Setup the AWS CLI with a proper secret and access key in your machine for sending the artifact to AWS S3.
+* Install same mlflow and gitpython package as your MLFlow server.
+* Setup the AWS CLI with a proper EC2 role for sending the artifact to AWS S3.
 * On EC2:
-   - Configure your EC2 to use security group **cig-http-ssh** (sg-073bdd162956365d9).
-   - During the initialization of Experiment object, configure the `tracking_uri` with `http://10.1.3.49:5000`
+   - Configure your EC2 to use security group allowed to the access to port 5000 of MLFlow server.
+   - During the initialization of Experiment object, configure the `tracking_uri` with MLFlow server's private ipv4 address.
 * On machine inside Exact IP address range:
-   - During the initialization of Experiment object, configure the `tracking_uri` with `http://34.243.161.35:5000`
+   - During the initialization of Experiment object, configure the `tracking_uri` with MLFlow server's public ipv4 address.
 
 ## Quickstart
 Initiate the experiment and run
